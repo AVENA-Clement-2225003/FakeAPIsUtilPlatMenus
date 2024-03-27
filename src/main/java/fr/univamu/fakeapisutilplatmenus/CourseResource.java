@@ -5,6 +5,12 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +38,25 @@ public class CourseResource {
         Map<String, Object> rep = new HashMap<>();
         rep.put("test", "test");
         Gson gson = new Gson();
-        return gson.toJson(rep);
+
+        Client client = ClientBuilder.newClient();
+
+        // Set the URL to send the JSON data
+        WebTarget target = client.target("http://localhost:8080/FakeAPIsUtilPlatMenus-1.0-SNAPSHOT/api/command/new");
+
+        String jsonData = gson.toJson(rep);
+
+        // Send the POST request with JSON data
+        Response response = target.request(MediaType.APPLICATION_JSON)
+                .post(Entity.json(jsonData));
+
+        // Check the response status
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            client.close();
+            return "JSON data sent successfully";
+        } else {
+            client.close();
+            return "Failed to send JSON data. Response status: " + response.getStatus();
+        }
     }
 }
